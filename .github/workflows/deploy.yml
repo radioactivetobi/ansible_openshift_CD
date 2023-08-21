@@ -1,9 +1,6 @@
 name: Deployment Workflow
 
 on:
-  pull_request:
-    branches:
-        - main # for dev deployments, take out the push trigger if this is to be used
   push:
     branches:
         - main # for prod deployments, take out the pull request trigger if this is to be used
@@ -11,7 +8,7 @@ on:
       - 'v[0-9]+\.[0-9]+\.[0-9]+' # for prod deployments
       
 jobs:
-    deploy-prod:
+    deploy-openshift:
         runs-on: ubuntu-latest
         steps:
             - name: 'Clone the repository.'
