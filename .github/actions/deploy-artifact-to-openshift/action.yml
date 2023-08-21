@@ -23,10 +23,6 @@ inputs:
     description: 'Password for OpenShift'
     required: true
   
-  openshift-url:
-    description: 'Openshift API URL'
-    required: true
-  
   environment:
     description: 'The environment where the application will be deployed (dev, staging or prod).'
     required: true
@@ -49,7 +45,7 @@ runs:
 
     - name: Deploy to OpenShift using Ansible
       run: |
-        ansible-playbook -i ${{inputs.openshift-url}}, deploy-to-openshift.yml
+        ansible-playbook -i localhost, openshift-playbook.yml
       shell: bash
       env:
         ARTIFACTORY_USERNAME: ${{ inputs.artifactory-username }}
@@ -57,4 +53,4 @@ runs:
         ARTIFACT_URL: ${{ inputs.artifact-url }}
         OPENSHIFT_USERNAME: ${{ inputs.openshift-username }}
         OPENSHIFT_PASSWORD: ${{ inputs.openshift-password }}
-        OPENSHIFT_URL: ${{ inputs.opnshift-url }}
+    
