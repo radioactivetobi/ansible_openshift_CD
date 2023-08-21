@@ -4,8 +4,6 @@ on:
   pull_request:
     branches:
         - main # for dev deployments, take out the push trigger if this is to be used
-        - dev # for dev deployments, take out the push trigger if this is to be used
-        - staging # for dev deployments, take out the push trigger if this is to be used
   push:
     branches:
         - main # for prod deployments, take out the pull request trigger if this is to be used
