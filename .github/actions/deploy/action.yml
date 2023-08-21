@@ -49,7 +49,7 @@ runs:
 
     - name: Deploy to OpenShift using Ansible
       run: |
-        ansible-playbook -i ${{inputs.e}}, deploy-to-openshift.yml
+        ansible-playbook -i ${{inputs.openshift-url}}, deploy-to-openshift.yml
       shell: bash
       env:
         ARTIFACTORY_USERNAME: ${{ inputs.artifactory-username }}
