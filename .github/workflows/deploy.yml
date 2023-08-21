@@ -1,0 +1,25 @@
+name: Deployment Workflow
+
+on:
+  pull_request:
+    branches:
+        - main # for dev deployments, take out the push trigger if this is to be used
+        - dev # for dev deployments, take out the push trigger if this is to be used
+        - staging # for dev deployments, take out the push trigger if this is to be used
+  push:
+    branches:
+        - main # for prod deployments, take out the pull request trigger if this is to be used
+    tags:
+      - 'v[0-9]+\.[0-9]+\.[0-9]+' # for prod deployments
+      
+jobs:
+    deploy-prod:
+        runs-on: ubuntu-latest
+        steps:
+            - name: 'Clone the repository.'
+              uses: actions/checkout@v2
+            - name: 'Deploy the application in the production environment'
+              uses: ./.github/actions/deploy #uses the deployment action
+              with:
+                environment: prod #change this according to the environment
+                

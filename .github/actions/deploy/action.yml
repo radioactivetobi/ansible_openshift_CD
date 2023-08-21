@@ -1,0 +1,60 @@
+name: 'OpenShift Deploy'
+
+description: 'Fetches an artifact from JFrog Artifactory and deploys it to OpenShift using Ansible'
+
+inputs:
+  artifactory-username:
+    description: 'Username for JFrog Artifactory'
+    required: true
+
+  artifactory-password:
+    description: 'Password for JFrog Artifactory'
+    required: true
+
+  artifact-url:
+    description: 'URL of the artifact in JFrog Artifactory'
+    required: true
+
+  openshift-username:
+    description: 'Username for OpenShift'
+    required: true
+
+  openshift-password:
+    description: 'Password for OpenShift'
+    required: true
+  
+  openshift-url:
+    description: 'Openshift API URL'
+    required: true
+  
+  environment:
+    description: 'The environment where the application will be deployed (dev, staging or prod).'
+    required: true
+    default: dev
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Ansible
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install Ansible requirements
+      run: pip install ansible
+      shell: bash
+
+    - name: Deploy to OpenShift using Ansible
+      run: |
+        ansible-playbook -i ${{inputs.e}}, deploy-to-openshift.yml
+      shell: bash
+      env:
+        ARTIFACTORY_USERNAME: ${{ inputs.artifactory-username }}
+        ARTIFACTORY_PASSWORD: ${{ inputs.artifactory-password }}
+        ARTIFACT_URL: ${{ inputs.artifact-url }}
+        OPENSHIFT_USERNAME: ${{ inputs.openshift-username }}
+        OPENSHIFT_PASSWORD: ${{ inputs.openshift-password }}
+        OPENSHIFT_URL: ${{ inputs.opnshift-url }}
