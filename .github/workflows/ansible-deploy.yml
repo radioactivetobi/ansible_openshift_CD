@@ -17,7 +17,7 @@ jobs:
     # Define the steps in this job
     steps:
     - name: Download Artifact from Artifactory # Download the artifact from Artifactory
-      uses: ./.github/actions/download-artifact-from-artifactory
+      uses: ./.github/actions/download-artifactory-artifact
       with:
         artifactory_url: '<YOUR_JFROG_BASE_URL>'
         repo_key: '<YOUR_REPO_KEY>'
