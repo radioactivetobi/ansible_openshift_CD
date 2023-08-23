@@ -1,0 +1,32 @@
+# Define the workflow name
+
+name: Ansible CD
+
+# Trigger this workflow on push events to the main branch
+on:
+  push:
+    branches:
+      - main
+
+
+jobs:
+  # Define the deployment job
+  deploy:
+    runs-on: ubuntu-latest
+    
+    # Define the steps in this job
+    steps:
+    - name: Download Artifact from Artifactory # Download the artifact from Artifactory
+      uses: ./.github/actions/download-artifact-from-artifactory
+      with:
+        artifactory_url: '<YOUR_JFROG_BASE_URL>'
+        repo_key: '<YOUR_REPO_KEY>'
+        artifact_name: '<ARTIFACT_NAME_IN_REPO>'
+        artifactory_api_key: ${{ secrets.ARTIFACTORY_API_KEY }}
+
+    - name: Deploy Artifact using Ansible # Deploy the artifact using the Ansible action
+      uses: ./.github/actions/deploy-artifact-with-ansible
+      with:
+        # Specify the path to the artifact and the environment for deployment
+        artifact_path: '<ARTIFACT_NAME_IN_REPO>'
+        environment: 'production' # This controls the GitHub environment (e.g., for approvals, environment secrets).
