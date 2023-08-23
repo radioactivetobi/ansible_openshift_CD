@@ -1,0 +1,42 @@
+# Define action metadata
+name: 'Deploy With Ansible'
+description: 'Deploys an artifact to a remote server using Ansible'
+
+# Define the input parameters for this action
+inputs:
+  # Path to the artifact to be deployed
+  artifact_path:
+    description: 'Local path to the artifact in the workflow workspace'
+    required: true
+  
+  # Path to the Ansible playbook for deployment
+  ansible_playbook:
+    description: 'Path to the Ansible playbook'
+    default: 'ansible/deploy-artifact.yml'
+    required: false
+  
+  # Path to the Ansible inventory file (listing remote hosts)
+  ansible_inventory:
+    description: 'Path to the Ansible inventory file'
+    default: 'ansible/inventory.ini'
+    required: false
+  
+  # Target environment for deployment (e.g., staging, production)
+  environment:
+    description: 'Deployment environment (e.g., production, staging)'
+    required: true
+runs:
+  using: "composite"
+  steps:
+  # Install Ansible on the runner
+    - name: Install Ansible
+      run: sudo apt-get update && sudo apt-get install -y ansible
+      shell: bash
+  
+  # Use Ansible to deploy the artifact
+    - name: Deploy Artifact using Ansible
+      env:
+        DEPLOYMENT_ENV: ${{ inputs.environment }}
+      run: |
+        ansible-playbook -i ${{ inputs.ansible_inventory }} ${{ inputs.ansible_playbook }} --extra-vars "artifact_path=${{ inputs.artifact_path }} environment=$DEPLOYMENT_ENV"
+      shell: bash

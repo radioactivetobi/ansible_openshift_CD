@@ -1,0 +1,33 @@
+name: 'Download Artifactory Artifact'
+description: 'Downloads an artifact from JFrog Artifactory using JFrog CLI'
+inputs:
+  artifactory_url:
+    description: 'Base URL of the JFrog Artifactory'
+    required: true
+  repo_key:
+    description: 'Repository key in JFrog'
+    required: true
+  artifact_name:
+    description: 'Name of the artifact in Artifactory'
+    required: true
+  artifactory_api_key:
+    description: 'JFrog Artifactory API Key'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Install JFrog CLI
+      run: |
+        curl -fL https://getcli.jfrog.io | sh
+        sudo mv jfrog /usr/local/bin/
+      shell: bash
+
+    - name: Configure JFrog CLI
+      run: |
+        jfrog rt config --url=${{ inputs.artifactory_url }} --apikey=${{ inputs.artifactory_api_key }} --interactive=false
+      shell: bash
+
+    - name: Download Artifact from JFrog Artifactory using JFrog CLI
+      run: |
+        jfrog rt dl "${{ inputs.repo_key }}/${{ inputs.artifact_name }}"
+      shell: bash

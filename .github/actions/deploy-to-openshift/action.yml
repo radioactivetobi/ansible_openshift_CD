@@ -1,0 +1,75 @@
+name: 'Deploy to OpenShift'
+description: 'Pulls a Docker image from JFrog Artifactory and deploys it to an OpenShift cluster'
+inputs:
+  image_name:
+    description: 'Name of the image (including repository) to pull from Artifactory'
+    required: true
+  image_tag:
+    description: 'Tag of the image to pull'
+    default: 'latest'
+  artifactory_url:
+    description: 'URL of your Artifactory instance'
+    required: true
+  artifactory_username:
+    description: 'Artifactory username'
+    required: true
+  artifactory_password:
+    description: 'Artifactory password'
+    required: true
+  openshift_server:
+    description: 'OpenShift server URL'
+    required: true
+  openshift_token:
+    description: 'OpenShift authentication token'
+    required: true
+  project_name:
+    description: 'OpenShift project (namespace) name'
+    required: true
+  deployment_name:
+    description: 'OpenShift deployment name'
+    required: true
+  openshift_registry:
+    description: 'OpenShift image registry URL'
+    required: true
+  environment:
+    description: 'Deployment environment (e.g., production, staging)'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    # Login to Artifactory's Docker registry
+    - name: Docker Login to Artifactory
+      run: |
+        echo "${{ inputs.artifactory_password }}" | docker login ${{ inputs.artifactory_url }} -u ${{ inputs.artifactory_username }} --password-stdin
+      shell: bash
+
+    # Pull the specified image from Artifactory
+    - name: Docker Pull Image
+      run: |
+        docker pull ${{ inputs.artifactory_url }}/${{ inputs.image_name }}:${{ inputs.image_tag }}
+      shell: bash
+
+    # Log in to the OpenShift cluster
+    - name: Login to OpenShift
+      run: |
+        oc login ${{ inputs.openshift_server }} --token=${{ inputs.openshift_token }} --insecure-skip-tls-verify=true
+      shell: bash
+
+    # Switch to the specified project (namespace)
+    - name: Switch to project
+      run: |
+        oc project ${{ inputs.project_name }}
+      shell: bash
+      
+    # Tag the image for the OpenShift registry and push
+    - name: Tag and Push Image to OpenShift
+      run: |
+        docker tag ${{ inputs.image_name }}:${{ inputs.image_tag }} ${{ inputs.openshift_registry }}/${{ inputs.project_name }}/${{ inputs.image_name }}
+        docker push ${{ inputs.openshift_registry }}/${{ inputs.project_name }}/${{ inputs.image_name }}
+      shell: bash
+
+    # Trigger a new deployment in OpenShift
+    - name: Trigger Deployment
+      run: |
+        oc rollout latest dc/${{ inputs.deployment_name }}
+      shell: bash

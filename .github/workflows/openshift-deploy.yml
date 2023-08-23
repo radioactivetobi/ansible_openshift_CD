@@ -1,0 +1,31 @@
+# Define the workflow name
+
+name: Openshift CD
+
+# Trigger this workflow on push events to the main branch
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+# Define the deployment job
+  deploy:
+    runs-on: ubuntu-latest
+    # Define the steps in this job
+    steps:
+    # Pull from Artifactory and deploy to OpenShift
+    - name: Pull and Deploy
+      uses: ./.github/actions/deploy-to-openshit
+      with:
+        image_name: 'your-repo/your-image-name' #replace with image name
+        image_tag: 'your-image-tag' #replace with image tag
+        artifactory_url: 'https://artifactory.your-domain.com'
+        artifactory_username: ${{ secrets.ARTIFACTORY_USERNAME }}
+        artifactory_password: ${{ secrets.ARTIFACTORY_PASSWORD }}
+        openshift_server: 'https://api.your-openshift-cluster.com:6443' #replace with server url
+        openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
+        project_name: 'your-openshift-project'
+        deployment_name: 'your-deployment-name'
+        openshift_registry: 'image-registry.openshift-image-registry.svc:5000'
+        environment: 'production' # This controls the GitHub environment (e.g., for approvals, environment secrets).
